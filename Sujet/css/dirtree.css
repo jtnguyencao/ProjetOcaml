@@ -1,0 +1,16 @@
+.dirtree
+  { list-style-type : none ; }
+#root
+  { margin : 0 ; padding : 0 ; }
+.folder
+  { cursor : pointer ; user-select : none ; }
+.file::before
+  { content : url("../images/file.png")        ; color : black ; display : inline-block ; margin-right : 10px ; position : relative ; top : 5px ; }
+.folder::before
+  { content : url("../images/folder.png")      ; color : black ; display : inline-block ; margin-right : 10px ; position : relative ; top : 2px ; }
+.folder-open::before
+  { content : url("../images/folder-open.png") ; color : black ; display : inline-block ; margin-right : 10px ; position : relative ; top : 2px ; }
+.subtree
+  { display : none ; }
+.subtree-open
+  { display : block ; }

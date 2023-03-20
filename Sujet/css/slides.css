@@ -1,0 +1,140 @@
+/* Setting fonts for main markups */
+body
+  { font-family : 'Gotham' ; background-color : white ; color : black ; }
+p { margin-top : 0px ; margin-bottom : 0px ; }
+a { color : #606060 ; }
+a:link
+  { text-decoration : none ; }
+a:hover
+  { text-decoration : underline ; }
+pre, code
+  { font-family : 'Source Code Pro' ; background-color : white ; color : black ; margin-top : 0px ; margin-bottom : 0px ; padding : 0px ; }
+kbd
+  { font-family : 'Source Code Pro' ; background-color : lightgray ; border-radius : 2px ; padding : 5px ; border : 1px solid black ; }
+
+/* Setting fonts for headers */
+h1
+  { font-family : 'Gotham' ; font-weight : bold ; } 
+h2
+  { font-family : 'Gotham' ; font-weight : normal ; } 
+h3
+  { font-family : 'Gotham' ; font-weight : normal ; } 
+h4
+  { font-family : 'Gotham' ; font-weight : normal ; } 
+ul, ol
+  { margin-top : 0px ; line-height : 150% ; clear : both ; }
+
+/* Default settings for tables */
+table, tr, th, td
+  { padding : 10px ; border : 2px solid black ; border-collapse : collapse ; }
+td:hover
+  { background-color : yellow ; }
+
+
+/* Settings for a slide.
+ * In particular :
+ *  - h3 is used for a slide title
+ *  - h4 is used for a slide block title
+ *  - slide number is placed not to be over bottom right logo
+ */
+div:not(.middle) > h3
+  { font-weight : bold ; font-size : 40px ; margin-top : 0px ; margin-bottom : 40px ; position : relative ; left : 60px ; }
+div:not(.middle) > h4
+  { font-weight : bold ; font-size : 30px ; margin-top : 0px ; margin-bottom : 15px ; }
+.remark-slide-content
+  { font-size : 30px ; }
+.remark-slide-content > p:first-child
+  { margin-bottom : 50px ; }
+.remark-code, .remark-inline-code
+  { font-size : 30px ; padding : 0px ; }
+.remark-code-line
+  { min-height : 1em ; line-height : 120% ; }
+h3 .remark-code, h3 .remark-inline-code
+  { font-size : 42px ; }
+h3 .remark-code, h3 .remark-inline-code
+  { font-size : 42px ; }
+h2 .remark-code, h2 .remark-inline-code
+  { font-size : 46px ; }
+.remark-slide-number
+  { font-size : 18px ; position : absolute ; bottom : 12px ; left : 20px ; }
+
+/* Settings for code presentation (highlight.js) */
+pre, code
+  { background : rgb(255, 255, 255, 0.0) ; }
+.hljs-vs .hljs
+  { background : rgb(255, 255, 255, 0.0) ; padding : 3px ; }
+
+.normal
+  { font-weight : normal }
+
+/* LaTeX-like font classes */
+.huge
+  { font-size : 42px ; }
+.big
+  { font-size : 36px ; }
+.fair
+  { font-size : 30px ; }
+.small
+  { font-size : 26px ; }
+.small .remark-code, .small .remark-inline-code
+  { font-size : 28px ; }
+.smaller
+  { font-size : 24px ; }
+.smaller .remark-code, .smaller .remark-inline-code
+  { font-size : 25px ; }
+.smaller .hljs
+  { font-size : 22px ; }
+.tiny
+  { font-size : 20px ; }
+.tiny .remark-code, .tiny .remark-inline-code
+  { font-size : 21px ; }
+.tiny .hljs
+  { font-size : 18px ; }
+.sc
+  { font-size : 85% ; }
+
+/* Colors for fail/warning/success */
+.alert, .fail
+  { color : red ; }
+.warning
+  { color : orange ; }
+.success
+  { color : green ; }
+
+/* Setting default two-column layout */
+.remark-slide .left-column
+  { width : 49% ; float : left  ; }
+.remark-slide .right-column
+  { width : 49% ; float : right ; }
+.remark-slide .right-column ~ p
+  { clear : both ; }
+.remark-slide .right-column ~ ul
+  { clear : both ; }
+
+/* Fraction layout */
+span.frac
+  { display : inline-block ; text-align : center ; vertical-align : middle ; }
+span.frac > sup, span.frac > sub
+  { display : block ; font : inherit ; padding : 0 0.3em ; }
+span.frac > sup
+  { border-bottom : 0.08em solid ; }
+span.frac > span
+  { display : none ; }
+
+.twocolumn
+  { display : flex ; }
+.col-25
+  { flex : 25% ; }
+.col-30
+  { flex : 30% ; }
+.col-40
+  { flex : 40% ; }
+.col-50
+  { flex : 50% ; }
+.col-60
+  { flex : 60% ; }
+.col-70
+  { flex : 70% ; }
+.col-75
+  { flex : 75% ; }
+.

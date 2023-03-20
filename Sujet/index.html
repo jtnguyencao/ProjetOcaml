@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>Programmation fonctionnelle en Scala - Projet 2022-2023</title>
+  <link rel = "shortcut icon" type = "image/jpg" href = "images/cytech_logo.jpg">
+  <meta charset = "utf-8">
+  <style>
+   @import url("images/fonts/gotham/gotham.css") ;
+   @import url("images/fonts/sourcecodepro/source-code-pro.css") ;
+   @import url(css/slides.css) ;
+   @import url(css/dirtree.css) ;
+   @import url(css/print.css) ;
+  </style>
+ </head>
+ <body>
+   <!--script src = "https://remarkjs.com/downloads/remark-latest.min.js"></script-->
+   <script src = "javascripts/remark-latest.min.js"></script>
+   <script src = "javascripts/remark-config.js"></script>
+   <script src = "javascripts/dirtree.js"></script>
+   <script>
+     var slideshow = remarkCreateWithConfig('./Projet.md', 'vs') ;
+     slideshow.on('showSlide', dirtree) ;
+   </script>
+ </body>
+</html>
+
