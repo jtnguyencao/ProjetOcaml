@@ -8,7 +8,7 @@ module Generator :
       * @return    nouvelle valeur aléatoire en utilisant `gen`
       *)
     val next : 'a t -> 'a
-
+   
     (** Générateur constant
       * @param x valeur
       * @return  générateur de l'unique valeur `x`
@@ -22,7 +22,7 @@ module Generator :
       * @return     générateur pseudo-aléatoire de valeurs booléennes
       *)
     val bool : float -> bool t
-
+  
     (** Générateur pseudo-aléatoire d'entiers
       * @param a borne inférieure
       * @param b borne supérieure
@@ -104,168 +104,140 @@ module Generator :
       *                                                          et `snd f` pour toute valeur ne le vérifiant pas
       *)
     val partitioned_map : ('a -> bool) -> (('a -> 'b) * ('a -> 'b)) -> 'a t -> 'b t
+    
   end =
   struct
     (* TODO : Implémenter le type et tous les éléments de la signature *)
+     type 'a t = unit -> 'a;;
 
-    (*génarateur constant*)
-
-    let const x = 
-      x
+    let next (gen : 'a t) : 'a =
+      gen ()
     ;;
-    
-    
-    (* générateur de pseudo aléa de bool *)
-    
+
+    let const x= 
+      fun () -> x
+    ;;
+
     let bool prob = 
-      if Random.float 1.0 < prob then
-        true
-      else
-        false	
+      fun () -> Random.float 1.0 < prob
     ;;
 
-    (* générateur pseudo al d'un entier compris entre inf et sup *)
     let int inf sup = 
-      let integer = Random.int (sup -inf) in
-      if integer <= sup && integer >= inf then
-        integer
-      else (*sinon je retourne la borne sup*)
-        sup
+      fun () ->
+        if inf <= sup then
+          Random.int (sup + 1 - inf) + inf
+        else
+          failwith "borne inf doit etre inférieur à la borne supe"
     ;;
 
-    (* Cette fonction renvoie un générateur pseudo-aléatoire d'entiers naturels >= 0 *)
     let int_nonneg n =
-      if n <= 0 then
-        failwith "n doit être supérieur à 0"
-      else
-          let integer = Random.int n in
-          if integer < n then integer
-          else 0   
+      fun() -> 
+        if n <= 0 then
+          failwith "n doit être supérieur à 0"
+        else
+             
+          Random.int (n + 1)
+            
     ;;
 
     (*cette fonction génere un float compris entre inf et sup*)
     let float inf sup = 
-      let integer = Random.float (sup -. inf) in
-      if integer <= sup && integer >= inf then
-        integer
-      else
-        sup
+      fun () -> 
+        if inf <= sup then
+          Random.float (sup -. inf) +. inf
+        else 
+          failwith "inf doit etre inferieur à sup"
     ;;
 
-
-    (*cette fonction génere un float compris entre 0 et n*)
-    let float_nonneg n = 
-      if n <= 0 then 
-        failwith "n doit être supérieur à 0"
-      else
-        let myfloat = Random.float n in 
-        if myfloat < n then myfloat
-        else 0.0
-    ;;
-
-    (*cette fonction génere un char compris entre inf et sup*)
-    let char () = 
-      let rand_code = Random.int (Char.code 'z' - Char.code 'a' + 1) in
-      Char.chr (Char.code 'a' + rand_code)
-    ;;
-    
-    
-   
-    (*cette fonction génere un char alpha numériques *)
-    let alphanum () =
-      let rand_code = Random.int (Char.code 'z' - Char.code '0' + 1) in
-      let char_code = Char.code '0' + rand_code in
-      if char_code > Char.code '9' then
-        Char.chr (Char.code 'a' + rand_code - (Char.code '9' - Char.code '0') - 1)
-      else
-        Char.chr char_code
-    ;;
-
-    let string n (gen : unit -> char) =
-      let rec aux i acc =
-        if i = n then
-        (* lorsque la chaine a atteint le nombre n *)
-          String.concat "" (List.rev acc)
-          
+    let float_nonneg n  =
+    fun () ->
+        if n <= 0.0 then 
+          failwith "n doit être supérieur à 0"
         else
-          (*on genere un carac selon la stratégie*)
-          let c = gen () in
-          aux (i + 1) (String.make 1 c :: acc)
-      in
-      aux 0 []
+          Random.float (n)
     ;;
 
-    (* gen est de type unit -> 'a *)
+    let char = 
+      fun () -> 
+      let rand_code = Random.int(Char.code 'z' - Char.code 'a' + 1) in
+      Char.chr(Char.code 'a' + rand_code)
+    ;;
+
+    let alphanum =
+      fun () -> 
+        let rand_code = Random.int (62) in
+        if rand_code > 51 then    (* de 52 à 61 => chiffre*)
+          Char.chr (rand_code-4)
+        else if rand_code >25 then    (* de 26 à 51=> A->Z*)
+          Char.chr (rand_code+39)
+        else                     (* de 0 à 25 => a->z*)
+          Char.chr (rand_code+97)
+    ;;
+
+    let string n gen  =
+      fun () ->
+        let rec aux i acc =
+          if i = n then
+          (* lorsque la chaine a atteint le nombre n *)
+            String.concat "" acc
+            
+          else
+            (*on genere un carac selon la stratégie*)
+            let c = gen () in
+            aux (i + 1) (String.make 1 c :: acc)
+        in
+        aux 0 []
+    ;;
+
+     (* gen est de type unit -> 'a *)
     let list n gen = 
-      let rec aux i acc = 
-      if i = n then
-        List.rev acc
-      else
-        (*on genere pseudo aléa un élement x *)
-        let x = gen() in
-        aux (i + 1) (x :: acc)
-        (* x est ajoutée à la liste acc *)
-      in
-      aux 0 []
+      fun () ->
+        let rec aux i acc = 
+        if i = n then
+          acc
+        else
+          (*on genere pseudo aléa un élement x *)
+          let x = gen() in
+          aux (i + 1) (x :: acc)
+          (* x est ajoutée à la liste acc *)
+        in
+        aux 0 []
     ;;
 
+    (*Genarator.next(Generator.list 5 (Generator.const 5));;*)
 
     let combine fst_gen snd_gen = 
       fun () -> (fst_gen(),snd_gen())
     ;;
-    (*
-    pour tester:
-      
-    Dans le terminal : 
 
-    let gen = combine (fun () -> string 5 alphanum) (fun () -> int 1 10)
-    let result = gen ()
+    let map (p : 'a -> 'b) (gen : 'a t) : 'b t =
+      fun () -> p (gen ())
+    ;;
 
-    *)
+    let filter p gen =
+      fun() ->
+        let rec tmp p gen =
+          (*on genere un x avec gen() *) 
+          let x = gen() in
+          (* on verif si x vérifie la condition p *)
+          if p x then 
+            x
+          else
+            tmp p gen
+          in
+          tmp p gen
+    ;;
 
-    (*Pour map, je ne sais pas si ça marche correctment*)
-    (*Terminal : map(fun x -> x mod 2 = 0)(fun () -> int 5 10)*)
-
-    let map p gen =
-      let rec aux () =
+    let partitioned_map p f gen =
+      fun() ->
         let x = gen () in
-        if p x then x
-        else aux ()
-      in
-      aux
-    ;;
-
-    let rec filter p gen () =
-      (*on genere un x avec gen() *) 
-      let x = gen() in
-      (* on verif si x vérifie la condition p *)
-      if p x then 
-        x
-      else
-        filter p gen ()
-    ;;
-    
-    (*code pour tester la fonction filter *)
-    
-    let even x = x mod 2 = 0;;
-    
-    let gen = int_nonneg 100;;
-    
-    let gen_even = filter even (fun() ->gen);;
-    
-    let rec print_values n =
-      if n = 0 then
-        ()
-      else
-        let x = gen_even () in
-        print_int x;
-        print_string " ";
-        print_values (n-1)
-    ;;
-    
-    let () =
-      print_values 10
+        if p x then
+          (fst f) x
+        else
+          (snd f)x
     ;;
 
 
-  end ;;
+
+        
+  end
