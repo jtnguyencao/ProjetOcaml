@@ -123,10 +123,18 @@ module Generator :
     ;;
 
     let int inf sup = 
+<<<<<<< HEAD
       if inf <= sup then
       fun () -> Random.int (sup + 1 - inf) + inf
       else
         failwith "borne inf doit etre inférieur à la borne supe"
+=======
+      fun () ->
+        if inf <= sup then
+          Random.int (sup + 1 - inf) + inf
+        else
+          failwith "borne inf doit etre inférieur à la borne supe"
+>>>>>>> 478efc74472b1941783f71fc40c5a51ca58b5f8b
     ;;
 
     let int_nonneg n =
@@ -141,6 +149,7 @@ module Generator :
 
     (*cette fonction génere un float compris entre inf et sup*)
     let float inf sup = 
+<<<<<<< HEAD
       if inf <= sup then
         fun () -> Random.float (sup -. inf)
       else 
@@ -185,12 +194,65 @@ module Generator :
         aux 0 []
     ;;
 
+=======
+      fun () -> 
+        if inf <= sup then
+          Random.float (sup -. inf) +. inf
+        else 
+          failwith "inf doit etre inferieur à sup"
+    ;;
+
+    let float_nonneg n  =
+    fun () ->
+        if n <= 0.0 then 
+          failwith "n doit être supérieur à 0"
+        else
+          Random.float (n)
+    ;;
+
+    let char = 
+      fun () -> 
+      let rand_code = Random.int(Char.code 'z' - Char.code 'a' + 1) in
+      Char.chr(Char.code 'a' + rand_code)
+    ;;
+
+    let alphanum =
+      fun () -> 
+        let rand_code = Random.int (62) in
+        if rand_code > 51 then    (* de 52 à 61 => chiffre*)
+          Char.chr (rand_code-4)
+        else if rand_code >25 then    (* de 26 à 51=> A->Z*)
+          Char.chr (rand_code+39)
+        else                     (* de 0 à 25 => a->z*)
+          Char.chr (rand_code+97)
+    ;;
+
+    let string n gen  =
+      fun () ->
+        let rec aux i acc =
+          if i = n then
+          (* lorsque la chaine a atteint le nombre n *)
+            String.concat "" acc
+            
+          else
+            (*on genere un carac selon la stratégie*)
+            let c = gen () in
+            aux (i + 1) (String.make 1 c :: acc)
+        in
+        aux 0 []
+    ;;
+
+>>>>>>> 478efc74472b1941783f71fc40c5a51ca58b5f8b
      (* gen est de type unit -> 'a *)
     let list n gen = 
       fun () ->
         let rec aux i acc = 
         if i = n then
+<<<<<<< HEAD
           List.rev acc
+=======
+          acc
+>>>>>>> 478efc74472b1941783f71fc40c5a51ca58b5f8b
         else
           (*on genere pseudo aléa un élement x *)
           let x = gen() in
@@ -200,11 +262,16 @@ module Generator :
         aux 0 []
     ;;
 
+<<<<<<< HEAD
     (*Generator.next(Generator.list 5 (Generator.const 5));;*)
+=======
+    (*Genarator.next(Generator.list 5 (Generator.const 5));;*)
+>>>>>>> 478efc74472b1941783f71fc40c5a51ca58b5f8b
 
     let combine fst_gen snd_gen = 
       fun () -> (fst_gen(),snd_gen())
     ;;
+<<<<<<< HEAD
 
     let map (p : 'a -> 'b) (gen : 'a t) : 'b t =
       fun () -> p (gen ())
@@ -227,6 +294,37 @@ module Generator :
       else
         fun () -> (snd f)x
     ;;
+=======
+
+    let map (p : 'a -> 'b) (gen : 'a t) : 'b t =
+      fun () -> p (gen ())
+    ;;
+
+    let filter p gen =
+      fun() ->
+        let rec tmp p gen =
+          (*on genere un x avec gen() *) 
+          let x = gen() in
+          (* on verif si x vérifie la condition p *)
+          if p x then 
+            x
+          else
+            tmp p gen
+          in
+          tmp p gen
+    ;;
+
+    let partitioned_map p f gen =
+      fun() ->
+        let x = gen () in
+        if p x then
+          (fst f) x
+        else
+          (snd f)x
+    ;;
+
+
+>>>>>>> 478efc74472b1941783f71fc40c5a51ca58b5f8b
 
         
   end
