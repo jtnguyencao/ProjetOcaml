@@ -154,9 +154,12 @@ module Generator :
     ;;
 
     let char = 
-      
-      fun () -> let rand_code = Random.int(Char.code 'z' - Char.code 'a' + 1) in
-      Char.chr(Char.code 'a' + rand_code)
+     fun () -> 
+        let rand_code = Random.int (52) in
+        if rand_code >25 then    (* de 26 à 51=> A->Z*)
+          Char.chr (rand_code+39)
+        else                     (* de 0 à 25 => a->z*)
+          Char.chr (rand_code+97)
     ;;
 
     let alphanum =
@@ -226,4 +229,8 @@ module Generator :
       else
         fun () -> (snd f)x
     ;;
-  end
+
+
+
+        
+  end;;

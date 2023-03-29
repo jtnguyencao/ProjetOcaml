@@ -94,7 +94,7 @@ module Reduction :
     ;;
 
     (*retourne une liste compris entre 0 et n*)
-    let int_nonneg n  = 
+     let int_nonneg n  = 
       let rec aux acc x = 
         if x < 0 then 
           acc
@@ -102,44 +102,51 @@ module Reduction :
           aux (x::acc) (x-1)
       
       in aux [] n  
-    ;;
+    ;; 
+
 
     (*retourne une liste d'entiers compris entre -n et n*)
     let int n = 
       let rec aux acc x =
         if abs x > n then acc
-        else aux (x::acc) (x+1)
-  	  in aux [] (-n)
+        else aux (x::acc) (x-1)
+  	  in aux [] n
     ;;
 
 
     (*retourne une liste de flottant compris entre -n et n *)
     let float n = 
       let rec aux acc x =
-          if x > n then acc
-          else aux (x::acc) (x +. 0.5)
-        in aux [] (-.n)
+          if x<0. then acc
+          else aux (-.x::x::acc) (x -. 0.5)
+        in aux [] n
     ;;
 
     (*retourne une liste de flottant compris entre 0 et n*)
     let float_nonneg n = 
       let rec aux acc x = 
-        if x > n then 
+        if x < 0. then 
           acc
         else
-          aux (x::acc) (x +. 0.5)
-      in aux [] 0.0
+          aux (x::acc) (x -. 0.5)
+      in aux [] n
     ;;
 
     (*retourne la liste de caractère  entre 'a' et le 'carac' inclus*)
     let char c = 
       let rec aux i acc = 
-      (*on regarde si le char i est sup au code ASCII*)
-        if i > Char.code c then
-          List.rev acc
-        else 
-          aux (i + 1) (Char.chr i:: acc)
-      in aux (Char.code 'a') []
+      if i > Char.code c then 
+        List.rev acc
+      (*on verifie si le caractère courant est un carac alphanumérique*)
+      else if (Char.chr i) |> (function
+            | 'a' .. 'z' | 'A' .. 'Z'  -> true
+            | _ -> false)
+            then 
+              aux (i + 1) ((Char.chr i):: acc)
+      else (*sinon on passe au carac suivant*)
+        aux (i+1) acc
+      in aux (Char.code '0') []
+    ;;
     ;;
 
 
@@ -165,7 +172,7 @@ module Reduction :
     let string (red : char -> char list) s : string list =
       let rec aux i acc =
         if i >= String.length s then
-          List.rev acc
+          (List.rev acc)
         else
           let c = s.[i] in
           let cs = red c in
@@ -175,7 +182,7 @@ module Reduction :
     ;;
 
     
-    let list red lst =
+(*     let list red lst =
       let rec aux i acc =
         if i >= List.length lst then
           List.rev acc
@@ -187,6 +194,10 @@ module Reduction :
           (*on l'ajoute à liste accumulée acc *)
           aux (i + 1) (c' :: acc)
       in aux 0 []
+    ;; *)
+
+    let list red lst =
+      List.map red lst;
     ;;
 
     let combine fst_red snd_red : ('a * 'b) t = 
@@ -201,31 +212,11 @@ module Reduction :
     (*CELLE LA EST A REFAIRE, il y a un soucis avec le typage mais je vois pas comment résoudre*)
 
 
-    let filter p red : 'a t = 
-      (*la fonction aux permet d'ajouter le i eme élement à la liste de propositions si
-      i il verifie la condition p*)
-      let rec aux p red i acc =
-        if i >= List.length acc then
-          (**)
-          List.rev acc
-        else
-          (*List.nth list indice : pour accéder au ième element*)
-          let x = List.nth acc i in
-          (*si le ième element verifient la condition p*)
-          if p x then
-            
-            let add = red x in (* on l'ajoute à la liste accumulée acc*)
-            (* et on regarder le i+1 element*)
-            aux p red (i+1) (add :: acc)
-          else
-            (*sinon on passe direct au i+1 element*)
-            aux p red (i+1) acc
-        
-      in
-      aux p red 0 [] (*liste de depat et indice de depart*)
-    ;;
+    let filter p red= 
+      fun x -> List.filter p (red x)
+     ;;
 
-    (*)
+    
     
     
     
