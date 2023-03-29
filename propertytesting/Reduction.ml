@@ -108,8 +108,9 @@ module Reduction :
     (*retourne une liste d'entiers compris entre -n et n*)
     let int n = 
       let rec aux acc x =
-        if abs x > n then acc
-        else aux (x::acc) (x-1)
+        if x<0 then acc
+        else if x=0 then aux (x::acc) (x-1)
+        else aux (x::-x::acc) (x-1)
   	  in aux [] n
     ;;
 
@@ -118,7 +119,8 @@ module Reduction :
     let float n = 
       let rec aux acc x =
           if x<0. then acc
-          else aux (-.x::x::acc) (x -. 0.5)
+          else if x=0. then aux (x::acc) (x-. 0.5)
+          else aux (x::-.x::acc) (x -. 0.5)
         in aux [] n
     ;;
 
