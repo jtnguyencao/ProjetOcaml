@@ -123,11 +123,10 @@ module Generator :
     ;;
 
     let int inf sup = 
-      fun () ->
-        if inf <= sup then
-          Random.int (sup + 1 - inf) + inf
-        else
-          failwith "borne inf doit etre inférieur à la borne supe"
+      if inf <= sup then
+      fun () -> Random.int (sup + 1 - inf) + inf
+      else
+        failwith "borne inf doit etre inférieur à la borne supe"
     ;;
 
     let int_nonneg n =
@@ -142,36 +141,33 @@ module Generator :
 
     (*cette fonction génere un float compris entre inf et sup*)
     let float inf sup = 
-      fun () -> 
-        if inf <= sup then
-          Random.float (sup -. inf) +. inf
-        else 
-          failwith "inf doit etre inferieur à sup"
+      if inf <= sup then
+        fun () -> Random.float (sup -. inf)
+      else 
+        failwith "inf doit etre inferieur à sup"
     ;;
 
-    let float_nonneg n  =
-    fun () ->
-        if n <= 0.0 then 
-          failwith "n doit être supérieur à 0"
-        else
-          Random.float (n)
+    let float_nonneg n  = 
+      if n <= 0.0 then 
+        failwith "n doit être supérieur à 0"
+      else
+        fun () -> Random.float (n)
     ;;
 
     let char = 
-      fun () -> 
-      let rand_code = Random.int(Char.code 'z' - Char.code 'a' + 1) in
+      
+      fun () -> let rand_code = Random.int(Char.code 'z' - Char.code 'a' + 1) in
       Char.chr(Char.code 'a' + rand_code)
     ;;
 
     let alphanum =
       fun () -> 
-        let rand_code = Random.int (62) in
-        if rand_code > 51 then    (* de 52 à 61 => chiffre*)
-          Char.chr (rand_code-4)
-        else if rand_code >25 then    (* de 26 à 51=> A->Z*)
-          Char.chr (rand_code+39)
-        else                     (* de 0 à 25 => a->z*)
-          Char.chr (rand_code+97)
+        let rand_code = Random.int (Char.code 'z' - Char.code '0' + 1) in
+        let char_code = Char.code '0' + rand_code in
+        if char_code > Char.code '9' then
+          Char.chr (Char.code 'a' + rand_code - (Char.code '9' - Char.code '0') - 1)
+        else
+          Char.chr char_code
     ;;
 
     let string n gen  =
@@ -179,7 +175,7 @@ module Generator :
         let rec aux i acc =
           if i = n then
           (* lorsque la chaine a atteint le nombre n *)
-            String.concat "" acc
+            String.concat "" (List.rev acc)
             
           else
             (*on genere un carac selon la stratégie*)
@@ -194,7 +190,7 @@ module Generator :
       fun () ->
         let rec aux i acc = 
         if i = n then
-          acc
+          List.rev acc
         else
           (*on genere pseudo aléa un élement x *)
           let x = gen() in
@@ -214,27 +210,22 @@ module Generator :
       fun () -> p (gen ())
     ;;
 
-    let filter p gen =
-      fun() ->
-        let rec tmp p gen =
-          (*on genere un x avec gen() *) 
-          let x = gen() in
-          (* on verif si x vérifie la condition p *)
-          if p x then 
-            x
-          else
-            tmp p gen
-          in
-          tmp p gen
+    let rec filter p gen =
+      (*on genere un x avec gen() *) 
+      let x = gen() in
+      (* on verif si x vérifie la condition p *)
+      if p x then 
+        fun() -> x
+      else
+        filter p gen
     ;;
 
     let partitioned_map p f gen =
-      fun() ->
-        let x = gen () in
-        if p x then
-          (fst f) x
-        else
-          (snd f)x
+      let x = gen () in
+      if p x then
+        fun () -> (fst f) x
+      else
+        fun () -> (snd f)x
     ;;
 
 
