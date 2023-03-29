@@ -83,6 +83,12 @@ module Reduction :
       *)
     val filter : ('a -> bool) -> 'a t -> 'a t
     
+    val carac_par_carac : string -> char list
+ 
+    val ligneMot : char list list -> int -> string
+ 
+    val maxlength : 'a list list -> int -> int -> int
+    
   end =
   struct
     type 'a t = 'a -> 'a list
@@ -170,36 +176,49 @@ module Reduction :
     (*Pour tester : alphanum '9';;*)
     
     
-    (* Cette fonction renvoie une liste de chaînes de caractères plus "simples" au pire aussi longues que `s` *)
-    let string (red : char -> char list) s : string list =
+    let list red lst =
+      List.map red lst
+    ;;
+    let carac_par_carac str =
       let rec aux i acc =
-        if i >= String.length s then
-          (List.rev acc)
+        if i >= String.length str then
+          List.rev acc
         else
-          let c = s.[i] in
-          let cs = red c in
-          let strs = List.map (String.make 1) cs in
-          aux (i + 1) (strs @ acc)
+          let c = str.[i] in
+          aux (i + 1) (c :: acc)
       in aux 0 []
     ;;
 
+    let ligneMot redMot i =
+      let rec aux j acc =
+        if j < 0 then
+          acc
+        else if List.length (List.nth redMot j) > i then
+          aux (j - 1) ((String.make 1 (List.nth (List.nth redMot j) i)) ^ acc)
+        else
+          aux (j - 1) acc
+      in aux (List.length redMot - 1) ""
+    ;;
+
+    let rec maxlength tab i acc =
+      if i >= List.length tab then
+        acc
+      else if List.length (List.nth tab i) > acc then
+        maxlength tab (i + 1) (List.length (List.nth tab i))
+      else
+        maxlength tab (i + 1) acc
     
-(*     let list red lst =
-      let rec aux i acc =
-        if i >= List.length lst then
+
+    let string (red : char -> char list) s : string list =
+      let reduction = list red (carac_par_carac s) in
+      let maxL = maxlength reduction 0 0 in
+      let rec aux acc i =
+        if i >= maxL then
           List.rev acc
         else
-          (* pour acceder au i-ième element*)
-          let c = List.nth lst i in 
-          (*on applique la reduction sur le i ème element*)
-          let c' = red c in
-          (*on l'ajoute à liste accumulée acc *)
-          aux (i + 1) (c' :: acc)
-      in aux 0 []
-    ;; *)
-
-    let list red lst =
-      List.map red lst;
+          let mot = ligneMot reduction i in
+          aux (mot :: acc) (i + 1)
+      in aux [] 0
     ;;
 
     let combine fst_red snd_red : ('a * 'b) t = 
