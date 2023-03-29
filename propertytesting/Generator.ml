@@ -107,7 +107,6 @@ module Generator :
     
   end =
   struct
-    (* TODO : Implémenter le type et tous les éléments de la signature *)
      type 'a t = unit -> 'a;;
 
     let next (gen : 'a t) : 'a =
@@ -227,8 +226,4 @@ module Generator :
       else
         fun () -> (snd f)x
     ;;
-
-
-
-        
   end
