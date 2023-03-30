@@ -73,7 +73,7 @@ module Reduction :
       * @param fst_red stratégie de réduction de la première coordonnée
       * @param snd_red stratégie de réduction de la deuxième coordonnée
       * @return        stratégie de réduction sur les couples correspondants
-      *)
+      *)  
     val combine : 'a t -> 'b t -> ('a * 'b) t
     
     (** Applique un filtre à une stratégie de réduction
@@ -115,7 +115,7 @@ module Reduction :
     let int n = 
       let rec aux acc x =
         if x<0 then acc
-        else if x=0 then aux (x::acc) (x-1)
+        else if x=0 then aux (x::acc) (x-1)     
         else aux (x::-x::acc) (x-1)
   	  in aux [] n
     ;;
@@ -221,16 +221,18 @@ module Reduction :
       in aux [] 0
     ;;
 
-    let combine fst_red snd_red : ('a * 'b) t = 
-      fun(x,y) ->
-        let first = fst_red x in
-        let second = snd_red y in
-        List.combine first second
-    ;;
+let combine fst_red snd_red (x,y): ('a * 'b) list =
+  let first = fst_red x in
+  let second = snd_red y in
+  let rec aux acc i =
+    if i < List.length first || i < List.length second then
+      let a = List.nth first (i mod (List.length first)) in
+      let b = List.nth second (i mod (List.length second)) in
+      aux ((a,b)::acc) (i+1)
+    else List.rev acc
+  in aux [] 0
 
 
-    (*IMPORTANT*)
-    (*CELLE LA EST A REFAIRE, il y a un soucis avec le typage mais je vois pas comment résoudre*)
 
 
     let filter p red= 
