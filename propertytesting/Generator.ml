@@ -128,14 +128,11 @@ module Generator :
     ;;
 
     let int inf sup = 
-      (*on verfie si inf < sup*)
-      if inf <= sup then
-        
-        fun () -> Random.int (sup + 1 - inf) + inf
-      (* permet de choisir un entier aléatoirement dans l'intervalle [inf,sup]*)
-      else
-        (*sinon on indique le message d'erreur avec une exception*)
-        failwith "borne inf doit etre inférieur à la borne sup"
+      fun () ->
+        if inf <= sup then
+          Random.int (sup + 1 - inf) + inf
+        else
+          failwith "borne inf doit etre inférieur à la borne supe"
     ;;
 
     let int_nonneg n =
@@ -151,24 +148,20 @@ module Generator :
 
     (*cette fonction génere un float compris entre inf et sup*)
     let float inf sup = 
-      (*on vérifie si inf < sup*)
-      if inf <= sup then
-        (*on choisi un float dans l'intervalle [inf,sup]*)
-        fun () -> Random.float (sup -. inf) +. inf
-      else 
-        (*sinon on indique le message d'erreur avec une exception*)
-        failwith "inf doit etre inferieur à sup"
+      fun () -> 
+        if inf <= sup then
+          Random.float (sup -. inf) +. inf
+        else 
+          failwith "inf doit etre inferieur à sup"
     ;;
 
     (*cette fonction génère un float non négatif dans l'intervalle [0,n] *)
-    let float_nonneg n  = 
-    (*si n inférieur à 0.0*)
-      if n <= 0.0 then 
-        (*on lance une exception avec message d'erreur*)
-        failwith "n doit être supérieur à 0"
-      else
-        (*sinon on choisi aléatoirement un float dans l'intervalle [0,n]*)
-        fun () -> Random.float (n)
+    let float_nonneg n  =
+    fun () ->
+        if n <= 0.0 then 
+          failwith "n doit être supérieur à 0"
+        else
+          Random.float (n)
     ;;
 
     (*cette fonction retourne un générateur de charactère*)
@@ -205,7 +198,7 @@ module Generator :
         let rec aux i acc =
           if i = n then
           (* lorsque la chaine a atteint le nombre n *)
-            String.concat "" (List.rev acc)
+            String.concat "" acc
             
           else
             (*on genere un ième carac selon la stratégie*)
@@ -223,7 +216,7 @@ module Generator :
         let rec aux i acc = 
         if i = n then
           (*Si i est égale à la taille de liste*)
-          List.rev acc
+          acc
         else
           (*on genere pseudo aléa un élement x selon le gen*)
           let x = gen() in
@@ -250,15 +243,18 @@ module Generator :
 
     (*Generator.next(Generator.map(fun x -> x + 1) (Generator.int_nonneg 2))*)
     (*retourne une génerateur gen si celui verifie la condition p*)
-    let rec filter p gen =
-      (*on genere un x avec gen() *) 
-      let x = gen() in
-      (* on verif si x vérifie la condition p *)
-      if p x then 
-        fun() -> x
-      else
-        (*sinon on filtre le génerateur avec la condition p*)
-        filter p gen
+    let filter p gen =
+      fun() ->
+        let rec tmp p gen =
+          (*on genere un x avec gen() *) 
+          let x = gen() in
+          (* on verif si x vérifie la condition p *)
+          if p x then 
+            x
+          else
+            tmp p gen
+          in
+          tmp p gen
     ;;
 
     (*Generator.next(Generator.filter(fun x -> x mod 2 = 0)(Generator.int 7 15))*)
@@ -268,15 +264,12 @@ module Generator :
     fst f` pour toute valeur vérifiant `p`
     et `snd f` pour toute valeur ne le vérifiant pas*)
     let partitioned_map p f gen =
-      (*on genere un élement x*)
-      let x = gen () in
-      (*si x verifie p*)
-      if p x then
-        (*on applique fst f*)
-        fun () -> (fst f) x
-      else
-        (*sinon on applique snd f*)
-        fun () -> (snd f)x
+      fun() ->
+        let x = gen () in
+        if p x then
+          (fst f) x
+        else
+          (snd f)x
     ;;
     
   end;;
