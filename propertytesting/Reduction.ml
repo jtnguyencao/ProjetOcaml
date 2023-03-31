@@ -117,7 +117,7 @@ module Reduction :
         if x<0 then acc
         else if x=0 then aux (x::acc) (x-1)     
         else aux (x::-x::acc) (x-1)
-  	  in aux [] n
+  	  in aux [] (abs n)
     ;;
 
 
@@ -230,7 +230,7 @@ let combine fst_red snd_red (x,y): ('a * 'b) list =
       let b = List.nth second (i mod (List.length second)) in
       aux ((a,b)::acc) (i+1)
     else List.rev acc
-  in aux [] 0
+  in aux [] 0;;
 
 
 

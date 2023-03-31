@@ -46,38 +46,38 @@ module Test :
       prop: 'a Property.t;
     };;
 
-    let make_test gen red name prop = { gen; red; name; prop }
+    let make_test gen red name prop = { gen; red; name; prop };;
 
     let check n test =
       if n <= 0 then false
       else
-        let rec loop i count =
-          if i >= n then count = n
+        let rec loop i =
+          if i >= n then true
           else
             let x = Generator.next(test.gen) in
             let result = test.prop x in
-            if result then loop (i+1) (count+1)
+            if result then loop (i+1)
             else false
-        in loop 0 0;;
+        in loop 0;;
 
-    (*si la propriété n'est pas vérifiée, appèle check sur les valeurs du liste retourné par test.red x. Dès que check renvoye false, retourne la valeur du liste *)
     let fails_at n test =
       let rec loop i =
         if i >= n then None
         else
           let x = Generator.next test.gen in
           let result = test.prop x in
-          if not result then
-            match test.red x with
-            | [] -> Some x
-            | ys ->
-              if List.for_all test.prop ys then loop (i+1)
-              else Some (List.find (fun y -> not (test.prop y)) ys)
-          else loop (i+1)
-      in loop 0
-        
+          if result then loop (i+1)
+          else
+            let rec loop_red j=
+              if j >= List.length (test.red x) then Some x
+              else
+                let y' = List.nth (test.red x) j in
+                let result' = test.prop y' in
+                if result' then loop_red (j+1)
+                else Some y'
+            in loop_red 0
+      in loop 0;;
 
     let execute n tests =
-      List.map (fun test -> (test, fails_at n test)) tests
- 
+      List.map (fun test -> (test, fails_at n test)) tests;;
   end ;;
