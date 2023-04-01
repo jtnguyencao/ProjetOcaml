@@ -67,13 +67,14 @@ type 'a t = {
         if result then aux (i + 1)
         else
           let rec aux_red j =
-            if j >= List.length (test.red x) then Some x
-            else
-              let y' = List.nth (test.red x) j in
-              let result' = test.prop y' in
-              if result' then aux_red (j + 1) else Some y'
-          in aux_red 0
-    in loop 0
+            match test.red j with
+            | [] -> Some x
+            | ys -> match (List.find_opt (fun y -> not (test.prop y)) ys) with
+                  | None -> Some j
+                  | Some k when k = j -> Some j
+                  | Some k -> aux_red k
+          in aux_red x
+    in aux 0
 
   let execute n tests = List.map (fun test -> (test, fails_at n test)) tests
 end
