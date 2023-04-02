@@ -22,6 +22,14 @@ module Test :
       * @return     `true` si n > 0 et que toutes les valeurs à tester satisfont les conditions
       *)
     val check : int -> 'a t -> bool
+
+    (** Effectue un test
+      * @param n    nombre de valeurs à tester
+      * @param test test à effectuer
+      * @return     un couple (pourcentage true,pourcentage false)
+      *)
+    val checkPercentage : int -> 'a t -> (float*float)
+
     
     (** Cherche une valeur simple ne vérifiant pas la propriété
       * @param n nombre de valeurs à tester
@@ -81,6 +89,15 @@ module Test :
       (* On commence par appeller la fonction "aux" avec l'arguments 0 et une première valeur générée, et on retourne "true" si "n" est supérieur à 0 et que la fonction "aux" a renvoyé "true", sinon on retourne "false" *)
       in n > 0 && aux 0 (Generator.next test.gen)
     ;;
+
+    let checkPercentage n test=
+      let rec aux i j k x =
+        if i>=n then
+          (float_of_int(j)/.float_of_int(n),float_of_int(k)/.float_of_int(n))
+        else if test.prop x then aux (i+1) (j+1) k (Generator.next test.gen)
+        else aux (i+1) j (k+1) (Generator.next test.gen)
+      in aux 0 0 0 (Generator.next test.gen)
+
 
     let fails_at n test =
       (* Définition d'une fonction auxiliaire "aux" qui prend un entier "i" et valeur "x" comme arguments *)

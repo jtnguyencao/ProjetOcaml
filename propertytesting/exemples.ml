@@ -129,6 +129,7 @@ let test_sort = test_intlist "List.sort (correct?)" (fun l -> List.sort compare 
 
 (* Exécution des tests *)
 Test.check    100 test_sort;;
+Test.checkPercentage    100 test_sort;;
 Test.fails_at 100 test_sort ;;
 
 (* Exemple : Fonction de produit scalaire *)
