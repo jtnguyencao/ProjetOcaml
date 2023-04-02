@@ -13,11 +13,19 @@ module Property :
     val always_false : 'a t
   end =
   struct
-    type 'a t = 'a -> bool ;;
+    type 'a t = 
+      'a -> bool
+    ;;
 
     (* CONSTANTES *)
 
-    let always_true : 'a t = fun _ -> true
+    let always_true = 
+      (* Fonction anonyme prenant un argument ignoré "_" et renvoyant "true" *)
+      fun _ -> true
+    ;;
 
-    let always_false : 'a t = fun _ -> false
+    let always_false = 
+      (* Fonction anonyme prenant un argument ignoré "_" et renvoyant "false" *)
+      fun _ -> false
+    ;;
   end ;;
