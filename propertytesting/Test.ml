@@ -15,7 +15,7 @@ module Test :
       * @return     test créé
       *)
     val make_test : 'a Generator.t -> 'a Reduction.t -> string -> 'a Property.t -> 'a t
-
+    
     (** Effectue un test
       * @param n    nombre de valeurs à tester
       * @param test test à effectuer
@@ -27,8 +27,15 @@ module Test :
       * @param n nombre de valeurs à tester
       * @return  `None` si toutes les valeurs de test générées par `gen` vérifient `prop`,
                  une valeur ne vérifiant pas `prop` (éventuellement en appliquant `red`) sinon
-      *)
+    *)
     val fails_at : int -> 'a t -> 'a option
+
+     (** Cherche une valeur simple ne vérifiant pas la propriété
+      * @param n nombre de valeurs à tester
+      * @return  `None` si toutes les valeurs de test générées par `gen` vérifient `prop`,
+                 couple de la valeur ne vérifiant pas `prop` et de sa version réduite
+    *)
+    val fails_at_init : int -> 'a t -> ('a * 'a) option
     
     (** Exécute plusieurs tests
       * @param n     nombre de valeurs testées par test
@@ -57,7 +64,6 @@ module Test :
         prop;
       }
     ;;
-
 
     let check n test =
       (* Définition d'une fonction auxiliaire "aux" qui prend un entier "i" comme argument *)
@@ -99,8 +105,8 @@ module Test :
         if i >= n then None
         (* Si le test de "x" passe on rappelle la fonction aux avec (i+1) et une nouvelle valeur générée*)
         else if test.prop x then aux (i+1) (Generator.next test.gen)
-        (* Sinon, on cherche un élément "y" de la liste de réduction qui ne satisfait pas la propriété "prop" de "test" *)
-        else match List.find_opt (fun y -> not (test.prop y)) (test.red x) with
+        (* Sinon, on cherche un élément "k" de la liste de réduction qui ne satisfait pas la propriété "prop" de "test" *)
+        else match List.find_opt (fun k -> not (test.prop k)) (test.red x) with
           (* Si on n'en trouve pas alors on renvoie x *)
           | None -> Some x
           (* Si on trouve une valeur "k" qui est égale à "x" alors on renvoie x *)
@@ -108,6 +114,18 @@ module Test :
           (* Sinon on réduit x encore une fois *)
           | Some k -> aux i k
       in aux 0 (Generator.next test.gen)
+    ;;
+
+    (* idem avec init mais retourne en plus la valeur qui causé l'erreur en cas d'échec de test *)
+    let fails_at_init n test =
+      let rec aux i x init =
+        if i >= n then None
+        else if test.prop x then aux (i+1) (Generator.next test.gen) init
+        else match List.find_opt (fun k -> not (test.prop k)) (test.red x) with
+          | None -> Some (init, x)
+          | Some k when k = x -> Some (init, x)
+          | Some k -> aux i k init
+      in aux 0 (Generator.next test.gen) (Generator.next test.gen)
     ;;
 
     let execute n tests = 

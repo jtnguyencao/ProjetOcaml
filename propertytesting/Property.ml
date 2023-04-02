@@ -11,6 +11,19 @@ module Property :
 
     (** Propriété jamais   vérifiée *)
     val always_false : 'a t
+
+    (* FONCTIONS *)
+
+    (* ET logique *)
+    val and_ : 'a t -> 'a t -> 'a t 
+
+    (* OU logique *)
+    val or_ : 'a t -> 'a t -> 'a t
+
+    (* NON logique  *)
+    val not_  : 'a t -> 'a t 
+
+    val implies_ : 'a t -> 'a t -> 'a t
   end =
   struct
     type 'a t = 
@@ -27,5 +40,23 @@ module Property :
     let always_false = 
       (* Fonction anonyme prenant un argument ignoré "_" et renvoyant "false" *)
       fun _ -> false
+    ;;
+
+    (* FONCTIONS *)
+
+    let and_ p q = 
+      fun x -> p x && q x
+    ;;
+
+    let or_ p q = 
+      fun x -> p x || q x
+    ;;
+
+    let not_ p = 
+      fun x -> not (p x)
+    ;;
+
+    let implies_ p q = 
+      fun x -> not (p x) || q x
     ;;
   end ;;

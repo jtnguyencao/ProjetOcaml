@@ -1,6 +1,6 @@
 #use "Test.ml" ;;
 
-(* Tests de la division euclidienne                                                                          *)
+(* TEST : Tests de la division euclidienne                                                                   *)
 (* Les tests sont effectués sur des couples d'entiers compris entre -100 et 100 dont le second est *non nul* *)
 (* (d'où l'utilisation du filtre pour éviter des divisions par zéro).                                        *)
 let gen_intcouple =
@@ -24,7 +24,7 @@ Test.fails_at 100 test_quorem       ;;
 Test.fails_at 100 test_quorem_wrong ;;
 Test.execute  100 [test_quorem ; test_quorem_wrong] ;;
 
-(* Tests sur la concaténation de listes                                           *)
+(* TEST : Tests sur la concaténation de listes                                  *)
 (* Les tests sont effectués sur des listes d'au plus dix entiers entre 0 et 10. *)
 let gen_intlistcouple =
   let gen_intlist = Generator.list 10 (Generator.int_nonneg 10) in
@@ -45,10 +45,7 @@ Test.fails_at 100 test_append       ;;
 Test.fails_at 100 test_append_wrong ;;
 Test.execute  100 [test_append ; test_append_wrong] ;;
 
-
-(* Quelques exemples de tests que nous avons ajouté *)
-
-(* Tests sur l'inversion de listes *)
+(* TEST : Tests sur l'inversion de listes                                       *)
 (* Les tests sont effectués sur des listes d'au plus dix entiers entre 0 et 10. *)
 let gen_intlist = Generator.list 10 (Generator.int_nonneg 10) ;;
 let red_intlist = Reduction.list Reduction.int_nonneg ;;
@@ -56,7 +53,6 @@ let red_intlist = Reduction.list Reduction.int_nonneg ;;
 let test_intlist = Test.make_test gen_intlist red_intlist ;;
 
 (* Construction des tests *)
-
 (* test_rev_correct vérifie que l'inversion deux fois de la liste donne la liste originale.*)
 let test_rev_correct = test_intlist "List.rev (correct)" (fun l -> List.rev (List.rev l) = l) ;;
 (* test_rev_wrong vérifie que l'inversion de la liste donne la même liste, ce qui devrait échouer.*)
@@ -69,16 +65,14 @@ Test.fails_at 100 test_rev_correct ;;
 Test.fails_at 100 test_rev_wrong ;;
 Test.execute  100 [test_rev_correct; test_rev_wrong] ;;
 
-(* Tests sur l'application d'une fonction à chaque élément d'une liste *)
+(* TEST : Tests sur l'application d'une fonction à chaque élément d'une liste   *)
 (* Les tests sont effectués sur des listes d'au plus dix entiers entre 0 et 10. *)
 let gen_intlist = Generator.list 10 (Generator.int_nonneg 10) ;;
 let red_intlist = Reduction.list Reduction.int_nonneg ;;
-
 let test_intlist = Test.make_test gen_intlist red_intlist ;;
 
 (* Construction des tests *)
 let double x = 2 * x ;;
-
 (* test_map_correct vérifie que l'application de la fonction double deux fois à la liste donne la même liste que l'application d'une fonction qui multiplie chaque élément par 4.*)
 let test_map_correct = test_intlist "List.map (correct)" (fun l -> List.map double (List.map double l) = List.map (fun x -> 4 * x) l) ;;
 (* test_map_wrong vérifie que l'application de la fonction double à la liste donne la même liste, ce qui devrait échouer.*)
@@ -91,20 +85,18 @@ Test.fails_at 100 test_map_correct ;;
 Test.fails_at 100 test_map_wrong ;;
 Test.execute  100 [test_map_correct; test_map_wrong] ;;
 
-(* Tests sur le filtrage des éléments d'une liste *)
+(* TEST : Tests sur le filtrage des éléments d'une liste                        *)
 (* Les tests sont effectués sur des listes d'au plus dix entiers entre 0 et 10. *)
 let gen_intlist = Generator.list 10 (Generator.int_nonneg 10) ;;
 let red_intlist = Reduction.list Reduction.int_nonneg ;;
-
 let test_intlist = Test.make_test gen_intlist red_intlist ;;
 
 (* Construction des tests *)
 let is_even x = x mod 2 = 0 ;;
-
-(* test_filter_correct vérifie que le filtrage des éléments pairs d'une liste obtenue 
-   en multipliant chaque élément d'une liste par 2 donne la même liste que celle obtenue en multipliant chaque élément par 2.*)
+(** test_filter_correct vérifie que le filtrage des éléments pairs d'une liste obtenue 
+  * en multipliant chaque élément d'une liste par 2 donne la même liste que celle obtenue en multipliant chaque élément par 2.
+  *)
 let test_filter_correct = test_intlist "List.filter (correct)" (fun l -> List.filter is_even (List.map (fun x -> 2 * x) l) = List.map (fun x -> 2 * x) l) ;;
-
 (* test_filter_wrong vérifie que le filtrage des éléments pairs d'une liste donne la même liste, ce qui devrait échouer.*)
 let test_filter_wrong   = test_intlist "List.filter (faux)" (fun l -> List.filter is_even l = l) ;;
 
@@ -115,16 +107,13 @@ Test.fails_at 100 test_filter_correct ;;
 Test.fails_at 100 test_filter_wrong ;;
 Test.execute  100 [test_filter_correct; test_filter_wrong] ;;
 
-
-(* Tests sur le tri d'une liste *)
+(* TEST : Tests sur le tri d'une liste                                           *)
 (* Les tests sont effectués sur des listes d'au plus dix entiers entre 0 et 100. *)
 let gen_intlist = Generator.list 10 (Generator.int 0 100) ;;
 let red_intlist = Reduction.list Reduction.int ;;
-
 let test_intlist = Test.make_test gen_intlist red_intlist ;;
 
 (* Construction des tests *)
-
 (* Fonction qui trie une liste d'entiers en utilisant l'algorithme de tri par sélection  c'est la fonction quand va tester, elle contient volontairement une erreur*)
 let rec selection_sort l= match l with
   | [] -> []
@@ -133,16 +122,12 @@ let rec selection_sort l= match l with
       let rest = List.filter (fun x -> x != min) lst in
       min :: selection_sort rest
 ;;
-
 (* test_sort vérifie que le tri d'une liste avec la fonction "List.sort" donne une liste triée.*)
 let test_sort = test_intlist "List.sort (correct?)" (fun l -> List.sort compare l = selection_sort l) ;;
-
-
 
 (* Exécution des tests *)
 Test.check    100 test_sort;;
 Test.fails_at 100 test_sort ;;
-
 
 (* Exemple : Fonction de produit scalaire *)
 (* Nous avons défini une fonction dot_product pour calculer le produit scalaire de deux vecteurs représentés par des listes d'entiers. *)
@@ -150,14 +135,12 @@ let dot_product v1 v2 =
   List.fold_left2 (fun acc x y -> acc + (x * y)) 0 v1 v2
 ;;
 
-(* Tests sur le produit scalaire *)
+(* TEST : Tests sur le produit scalaire *)
 let gen_intlist = Generator.list 10 (Generator.int (-10) 10) ;;
 let red_intlist = Reduction.list Reduction.int ;;
-
 let test_intlist = Test.make_test gen_intlist red_intlist ;;
 
 (* Construction des tests *)
-
 (* dot_product_testRight qui prend deux listes en argument et exécute les tests de produit scalaire correct (avec un +)
    Ensuite, nous avons défini les tests test_dot_product_correct en utilisant cette fonction. *)
    let dot_product_testRight l1 l2 =

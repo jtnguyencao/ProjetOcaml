@@ -22,6 +22,13 @@ module Generator :
       * @return     générateur pseudo-aléatoire de valeurs booléennes
       *)
     val bool : float -> bool t
+
+    (** Générateur pseudo-aléatoire de booléens
+      * @param prob probabilité de la valeur `true`
+      * @param seed la graine
+      * @return     générateur pseudo-aléatoire de valeurs booléennes
+      *)
+    val bool_seed : float -> int -> bool t
   
     (** Générateur pseudo-aléatoire d'entiers
       * @param a borne inférieure
@@ -29,12 +36,26 @@ module Generator :
       * @return  générateur pseudo-aléatoire de valeurs entières entre `a` et `b` inclus
       *)
     val int : int -> int -> int   t
+    (** Générateur pseudo-aléatoire d'entiers
+      * @param a borne inférieure
+      * @param b borne supérieure
+      * @param seed la graine
+      * @return  générateur pseudo-aléatoire de valeurs entières entre `a` et `b` inclus
+      *)
+    val int_seed : int -> int -> int -> int t
 
     (** Générateur pseudo-aléatoire d'entiers positifs ou nuls
       * @param n borne supérieure
       * @return  générateur pseudo-aléatoire de valeurs entières entre 0 et `n` inclus
       *)
     val int_nonneg : int -> int   t
+
+    (** Générateur pseudo-aléatoire d'entiers positifs ou nuls
+      * @param n borne supérieure
+      * @param seed la graine
+      * @return  générateur pseudo-aléatoire de valeurs entières entre 0 et `n` inclus
+      *)
+    val int_nonneg_seed : int -> int -> int t
 
     (** Générateur pseudo-aléatoire de flottants
       * @param x borne supérieure
@@ -43,17 +64,44 @@ module Generator :
       *)
     val float : float -> float -> float t
 
+    (** Générateur pseudo-aléatoire de flottants
+      * @param x borne supérieure
+      * @param y borne supérieure
+      * @param seed la graine
+      * @return  générateur pseudo-aléatoire de valeurs flottantes entre `x` et `y` inclus
+      *)
+    val float_seed : float -> float -> int ->  float t
+
     (** Générateur pseudo-aléatoire de flottants positifs ou nuls
       * @param x borne supérieure
       * @return  générateur pseudo-aléatoire de valeurs flottantes entre 0 et `x` inclus
       *)
     val float_nonneg : float -> float t
 
+    (** Générateur pseudo-aléatoire de flottants positifs ou nuls
+      * @param x borne supérieure
+      * @param seed la graine
+      * @return  générateur pseudo-aléatoire de valeurs flottantes entre 0 et `x` inclus
+      *)
+    val float_nonneg_seed : float -> int -> float t
+
     (** Générateur pseudo-aléatoire de caractères *)
     val char : char t
 
+    (** Générateur pseudo-aléatoire de caractères
+      * @param seed la graine
+      * @return  générateur pseudo-aléatoire de caractères
+      *)
+    val char_seed : int -> char t
+
     (** Générateur pseudo-aléatoire de caractères alphanumériques *)
     val alphanum : char t
+
+    (** Générateur pseudo-aléatoire de caractères alphanumériques
+      * @param seed la graine
+      * @return  générateur pseudo-aléatoire de caractères alphanumériques
+      *)
+    val alphanum_seed : int -> char t
 
     (* GENERATEURS DE CHAINE DE CARACTERE *)
 
@@ -127,12 +175,28 @@ module Generator :
       (*Si random float < prob ==> true sinon false*)
     ;;
 
+    (* idem avec la graine *)
+    let bool_seed prob seed = 
+      let rand = Random.State.make [|seed|] in
+      fun () -> Random.State.float rand 1.0 < prob
+    ;;
+
     let int inf sup = 
       fun () ->
         if inf <= sup then
           Random.int (sup + 1 - inf) + inf
         else
           failwith "borne inf doit etre inférieur à la borne supe"
+    ;;
+
+    (* idem avec la graine *)
+    let int_seed inf sup seed = 
+      let rand = Random.State.make [|seed|] in
+      fun () ->
+        if inf <= sup then
+          Random.State.int rand (sup + 1 - inf) + inf
+        else
+          failwith "borne inf doit etre inferieur a la borne supe"
     ;;
 
     let int_nonneg n =
@@ -146,11 +210,31 @@ module Generator :
             
     ;;
 
+    (* idem avec la graine *)
+    let int_nonneg_seed n seed =
+      let rand = Random.State.make [|seed|] in
+      fun() -> 
+        if n <= 0 then
+          failwith "n doit être supérieur à 0"
+        else
+          Random.State.int rand (n + 1)
+    ;;
+
     (*cette fonction génere un float compris entre inf et sup*)
     let float inf sup = 
       fun () -> 
         if inf <= sup then
           Random.float (sup -. inf) +. inf
+        else 
+          failwith "inf doit etre inferieur à sup"
+    ;;
+
+    (* idem avec la graine *)
+    let float_seed inf sup seed = 
+      let rand = Random.State.make [|seed|] in
+      fun () -> 
+        if inf <= sup then
+          Random.State.float rand (sup -. inf) +. inf
         else 
           failwith "inf doit etre inferieur à sup"
     ;;
@@ -164,6 +248,16 @@ module Generator :
           Random.float (n)
     ;;
 
+    (* idem avec la graine *)
+    let float_nonneg_seed n seed =
+      let rand = Random.State.make [|seed|] in
+      fun () ->
+          if n <= 0.0 then 
+            failwith "n doit être supérieur à 0"
+          else
+            Random.State.float rand (n)
+    ;;
+
     (*cette fonction retourne un générateur de charactère*)
     let char = 
      fun () -> 
@@ -174,6 +268,17 @@ module Generator :
             Char.chr (rand_code+39)
           else                     (* de 0 à 25 => a->z*)
             Char.chr (rand_code+97)
+    ;;
+
+    (* idem avec la graine *)
+    let char_seed seed = 
+      let rand = Random.State.make [|seed|] in
+      fun () -> 
+        let rand_code = Random.State.int rand (52) in
+        if rand_code >25 then
+          Char.chr (rand_code+39)
+        else
+          Char.chr (rand_code+97)
     ;;
 
     (*cette fonction retourne un génateur de charactère alphanumérique*)
@@ -190,6 +295,18 @@ module Generator :
               Char.chr (rand_code+97)
     ;;
 
+    (* idem avec la graine *)
+    let alphanum_seed seed =
+      let rand = Random.State.make [|seed|] in
+      fun () -> 
+        let rand_code = Random.State.int rand (62) in
+        if rand_code > 51 then
+          Char.chr (rand_code-4)
+        else if rand_code >25 then
+          Char.chr (rand_code+39)
+        else
+          Char.chr (rand_code+97)
+    ;;
 
     (*cette fonction renvoie un générateur de chaine de caractère*)
     let string n gen  =
