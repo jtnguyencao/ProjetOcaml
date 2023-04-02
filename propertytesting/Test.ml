@@ -29,7 +29,6 @@ module Test :
       * @return     un couple (pourcentage true,pourcentage false)
       *)
     val checkPercentage : int -> 'a t -> (float*float)
-
     
     (** Cherche une valeur simple ne vérifiant pas la propriété
       * @param n nombre de valeurs à tester
@@ -97,7 +96,7 @@ module Test :
         else if test.prop x then aux (i+1) (j+1) k (Generator.next test.gen)
         else aux (i+1) j (k+1) (Generator.next test.gen)
       in aux 0 0 0 (Generator.next test.gen)
-
+    ;;
 
     let fails_at n test =
       (* Définition d'une fonction auxiliaire "aux" qui prend un entier "i" et valeur "x" comme arguments *)
