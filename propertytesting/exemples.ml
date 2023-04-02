@@ -126,7 +126,7 @@ let test_intlist = Test.make_test gen_intlist red_intlist ;;
 (* Construction des tests *)
 
 (* Fonction qui trie une liste d'entiers en utilisant l'algorithme de tri par sélection  c'est la fonction quand va tester, elle contient volontairement une erreur*)
-let rec selection_sort = function
+let rec selection_sort l= match l with
   | [] -> []
   | lst ->
       let min = List.fold_left (fun x y -> if x < y then x else y) (List.hd lst) lst in

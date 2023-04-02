@@ -97,14 +97,9 @@ module Reduction :
         * @return       chaîne de caractères concaténée
         *)
     val ligneMot : char list list -> int -> string
+
+    val newList : 'a list list-> int -> 'a list
   
-      (** Trouve la longueur maximale parmi les listes contenues dans 'tab'
-        * @param tab liste de listes
-        * @param i   index courant (initialiser à 0)
-        * @param acc accumulateur pour la longueur maximale (initialiser à 0)
-        * @return    longueur maximale parmi les listes contenues dans 'tab'
-        *)
-    val maxlength : 'a list list -> int -> int -> int
     
   end =
   struct
@@ -190,12 +185,31 @@ module Reduction :
     ;;
 
     (*Pour tester : alphanum '9';;*)
+
+    let newList redList i =
+      let rec aux j acc =
+        if j < 0 then
+          acc
+        else if List.length (List.nth redList j) > i then
+          aux (j - 1) ((List.nth (List.nth redList j) (Random.int (List.length (List.nth redList j)))) :: acc)
+        else
+          aux (j - 1) acc
+      in aux (List.length redList - 1) []
+    ;;
     
     (* Stratégie de réduction pour les listes *)
     (* retourne une liste de listes, où chaque élément est le résultat de 
        l'application de la fonction de réduction 'réduction' sur chaque élément de la liste d'entrée *)
     let list red lst =
-      List.map red lst
+      let reduction = List.map red lst in
+      let maxL = List.fold_left (fun acc l -> max acc (List.length l)) 0 reduction in
+      let rec aux acc i =
+        if i >= maxL then
+          acc
+        else
+          let l = newList reduction i in
+          aux (l:: acc) (i + 1)
+      in aux [] 0
     ;;
 
     (* Fonctions auxiliaires pour la stratégie de réduction des chaînes de caractères *)
@@ -222,21 +236,14 @@ module Reduction :
       in aux (List.length redMot - 1) ""
     ;;
 
-    (* retourner la longueur maximale des listes dans 'tab' *)
-    let rec maxlength tab i acc =
-      if i >= List.length tab then
-        acc
-      else if List.length (List.nth tab i) > acc then
-        maxlength tab (i + 1) (List.length (List.nth tab i))
-      else
-        maxlength tab (i + 1) acc
+
     
 
     (* Stratégie de réduction pour les chaînes de caractères *)
     (* Appliquer la fonction de réduction 'red' à chaque caractère de la chaîne de caractères 's' *)
     let string (red : char -> char list) s : string list =
-      let reduction = list red (carac_par_carac s) in
-      let maxL = maxlength reduction 0 0 in
+      let reduction = List.map red (carac_par_carac s) in
+      let maxL = List.fold_left (fun acc l -> max acc (List.length l)) 0 reduction in
       let rec aux acc i =
         if i >= maxL then
           List.rev acc
