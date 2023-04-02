@@ -66,26 +66,6 @@ module Test :
     ;;
 
     let check n test =
-      (* Définition d'une fonction auxiliaire "aux" qui prend un entier "i" comme argument *)
-      let rec aux i =
-        (* Si la propriété testé est vérifiée pour n valeurs alors on retourne "true" *)
-        if i >= n then
-          true
-        else
-          (* On génère une valeur à tester *)
-          let x = Generator.next test.gen in
-          (* On teste "x" avec la "prop" *)
-          let result = test.prop x in
-          (* Si le test de "x" passe on rappelle la fonction aux avec (i+1) *)
-          if result then 
-            aux (i + 1)
-          (* On renvoie "false" sinon *)
-          else false
-      (* On commence par appeller la fonction "aux" avec l'argument 0, et on retourne "true" si "n" est supérieur à 0 et que la fonction "aux" a renvoyé "true", sinon on retourne "false" *)
-      in n > 0 && aux 0
-    ;;
-
-    let check n test =
       (* Définition d'une fonction auxiliaire "aux" qui prend un entier "i" et valeur "x" comme arguments *)
       let rec aux i x =
         (* Si la propriété testé est vérifiée pour n valeurs alors on retourne "true" *)
