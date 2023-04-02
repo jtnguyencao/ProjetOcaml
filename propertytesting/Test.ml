@@ -89,11 +89,15 @@ module Test :
       (* Définition d'une fonction auxiliaire "aux" qui prend un entier "i" et valeur "x" comme arguments *)
       let rec aux i x =
         (* Si la propriété testé est vérifiée pour n valeurs alors on retourne "true" *)
-        if i >= n then true
+        if i >= n then 
+          let () = Printf.printf "  >>> TEST ( %s ) --- PASSED\n" test.name in
+          true
         (* Si le test de "x" passe on rappelle la fonction aux avec (i+1) et une nouvelle valeur générée*)
         else if test.prop x then aux (i+1) (Generator.next test.gen)
         (* On renvoie "false" sinon *)
-        else false
+        else 
+          let () = Printf.printf "  >>> TEST ( %s ) --- FAILED\n" test.name in
+          false
       (* On commence par appeller la fonction "aux" avec l'arguments 0 et une première valeur générée, et on retourne "true" si "n" est supérieur à 0 et que la fonction "aux" a renvoyé "true", sinon on retourne "false" *)
       in n > 0 && aux 0 (Generator.next test.gen)
     ;;
@@ -102,15 +106,21 @@ module Test :
       (* Définition d'une fonction auxiliaire "aux" qui prend un entier "i" et valeur "x" comme arguments *)
       let rec aux i x =
         (* Si la propriété testé est vérifiée pour n valeurs alors on retourne "None" *)
-        if i >= n then None
+        if i >= n then 
+          let () = Printf.printf "  >>> TEST ( %s ) --- PASSED\n" test.name in
+          None
         (* Si le test de "x" passe on rappelle la fonction aux avec (i+1) et une nouvelle valeur générée*)
         else if test.prop x then aux (i+1) (Generator.next test.gen)
         (* Sinon, on cherche un élément "k" de la liste de réduction qui ne satisfait pas la propriété "prop" de "test" *)
         else match List.find_opt (fun k -> not (test.prop k)) (test.red x) with
           (* Si on n'en trouve pas alors on renvoie x *)
-          | None -> Some x
+          | None -> 
+            let () = Printf.printf "  >>> TEST ( %s ) --- FAILED\n  >>> FAILED AT : ( Reduced input )\n  >>> " test.name in
+            Some x
           (* Si on trouve une valeur "k" qui est égale à "x" alors on renvoie x *)
-          | Some k when k = x -> Some x
+          | Some k when k = x -> 
+            let () = Printf.printf "  >>> TEST ( %s ) --- FAILED\n  >>> FAILED AT : ( Reduced input )\n  >>> " test.name in
+            Some x
           (* Sinon on réduit x encore une fois *)
           | Some k -> aux i k
       in aux 0 (Generator.next test.gen)
@@ -119,11 +129,17 @@ module Test :
     (* idem avec init mais retourne en plus la valeur qui causé l'erreur en cas d'échec de test *)
     let fails_at_init n test =
       let rec aux i x init =
-        if i >= n then None
+        if i >= n then 
+          let () = Printf.printf "  >>> TEST ( %s ) --- PASSED\n" test.name in
+          None
         else if test.prop x then aux (i+1) (Generator.next test.gen) init
         else match List.find_opt (fun k -> not (test.prop k)) (test.red x) with
-          | None -> Some (init, x)
-          | Some k when k = x -> Some (init, x)
+          | None -> 
+            let () = Printf.printf "  >>> TEST ( %s ) --- FAILED\n  >>> FAILED AT : ( Failed input, reduced input )\n  >>> " test.name in
+            Some (init, x)
+          | Some k when k = x -> 
+            let () = Printf.printf "  >>> TEST ( %s ) --- FAILED\n  >>> FAILED AT : ( Failed input, reduced input )\n  >>> " test.name in
+            Some (init, x)
           | Some k -> aux i k init
       in aux 0 (Generator.next test.gen) (Generator.next test.gen)
     ;;
