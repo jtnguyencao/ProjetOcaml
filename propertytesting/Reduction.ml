@@ -91,13 +91,21 @@ module Reduction :
       *)
     val carac_par_carac : string -> char list
 
-      (** Concatène les caractères de la liste de listes 'redMot' à la position 'i'
-        * @param redMot liste de listes de caractères
-        * @param i      position dans chaque liste
-        * @return       chaîne de caractères concaténée
-        *)
+    (** Concatène les caractères de la liste de listes 'redMot' à la position 'i'
+      * @param redMot liste de listes de caractères
+      * @param i      position dans chaque liste
+      * @return       chaîne de caractères concaténée
+      *)
     val ligneMot : char list list -> int -> string
 
+    (** stratégie de réduction d'une liste de 'a list
+    * Cette fonction prend en entrée une liste de 'a list et un entier i et renvoie une nouvelle liste
+    * où chaque élément est un élément choisi aléatoirement dans la liste à la position i.
+    * @param 'a type de la liste
+    * @param 'a list liste de listes
+    * @param int entier i pour l'indice dans les listes internes
+    * @return 'a list nouvelle liste réduite
+    *)
     val newList : 'a list list-> int -> 'a list
   
     
@@ -183,9 +191,10 @@ module Reduction :
         aux (i+1) acc
       in aux (Char.code '0') []
     ;;
-
+    
     (*Pour tester : alphanum '9';;*)
 
+    (*retourne une nouvelle liste 'l' où chaque élément est un élément choisi aléatoirement dans la liste correspondante à l'indice 'i' de chaque élément de 'redList'.*)
     let newList redList i =
       let rec aux j acc =
         if j < 0 then

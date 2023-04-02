@@ -83,7 +83,7 @@ module Generator :
     val combine : 'a t -> 'b t -> ('a * 'b) t
 
     (** Applique un post-traitement à un générateur pseudo-aléatoire
-      * @param f   post-traitement à appliquer à chaque valeur générée
+      * @param p   post-traitement à appliquer à chaque valeur générée
       * @param gen générateur pseudo-aléatoire
       * @return    générateur pseudo-aléatoire obtenu en appliquant `f` à chaque valeur générée par `gen`
       *)
@@ -110,7 +110,7 @@ module Generator :
      type 'a t = unit -> 'a;;
 
 
-    (*fonction qui renvoie un generateur*)
+    (*fonction qui renvoie la prochaine valeur du prochain generateur en paramètre*)
     let next (gen : 'a t) : 'a =
       gen ()
     ;;
@@ -122,7 +122,7 @@ module Generator :
 
     (*cette fonction retourne générateur booléen*)
     let bool prob = 
-      (*Random.float permet de choisir un float aléatoirement et 1*)
+      (*Random.float permet de choisir un float aléatoirement entre 0 et 1*)
       fun () -> Random.float 1.0 < prob
       (*Si random float < prob ==> true sinon false*)
     ;;
@@ -169,11 +169,11 @@ module Generator :
      fun () -> 
         (*on va cherche entier aléatoire dans l'intervalle [0,52]*)
         let rand_code = Random.int (52) in
-        if rand_code >25 then    (* de 26 à 51=> A->Z*)
-          (*on recupere le charactère associé au code ASCII avec Char.chr*)
-          Char.chr (rand_code+39)
-        else                     (* de 0 à 25 => a->z*)
-          Char.chr (rand_code+97)
+          if rand_code >25 then    (* de 26 à 51=> A->Z*)
+            (*on recupere le charactère associé au code ASCII avec Char.chr*)
+            Char.chr (rand_code+39)
+          else                     (* de 0 à 25 => a->z*)
+            Char.chr (rand_code+97)
     ;;
 
     (*cette fonction retourne un génateur de charactère alphanumérique*)
@@ -181,13 +181,13 @@ module Generator :
         fun () -> 
           (*on choisi aléatoirement un entier dans [0,62]*)
           let rand_code = Random.int (62) in
-          if rand_code > 51 then    (* de 52 à 61 => chiffre*)
-            Char.chr (rand_code-4)
-          else if rand_code >25 then    (* de 26 à 51=> A->Z*)
-            (*pour revenir dans l'intervalle [A,Z]*)
-            Char.chr (rand_code+39)
-          else                     (* de 0 à 25 => a->z*)
-            Char.chr (rand_code+97)
+            if rand_code > 51 then    (* de 52 à 61 => chiffre*)
+              Char.chr (rand_code-4)
+            else if rand_code >25 then    (* de 26 à 51=> A->Z*)
+              (*pour revenir dans l'intervalle [A,Z]*)
+              Char.chr (rand_code+39)
+            else                     (* de 0 à 25 => a->z*)
+              Char.chr (rand_code+97)
     ;;
 
 
