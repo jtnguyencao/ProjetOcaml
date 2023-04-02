@@ -143,7 +143,7 @@ module Reduction :
           if x<0. then acc
           else if x=0. then aux (x::acc) (x-. 0.5)
           else aux (x::-.x::acc) (x -. 0.5)
-        in aux [] n
+        in aux [] (abs_float n)
     ;;
 
     (*retourne une liste de flottant compris entre 0 et n*)

@@ -124,31 +124,27 @@ let red_intlist = Reduction.list Reduction.int ;;
 let test_intlist = Test.make_test gen_intlist red_intlist ;;
 
 (* Construction des tests *)
-(* La fonction auxiliaire is_sorted pour vérifier si une liste est triée dans l'ordre croissant. *)
-let is_sorted l =
-  let rec is_sorted_aux l =
-    match l with
-    | [] | [_] -> true
-    | x :: y :: xs -> x <= y && is_sorted_aux (y :: xs)
-  in
-  is_sorted_aux l
+
+(* Fonction qui trie une liste d'entiers en utilisant l'algorithme de tri par sélection  c'est la fonction quand va tester, elle contient volontairement une erreur*)
+let rec selection_sort = function
+  | [] -> []
+  | lst ->
+      let min = List.fold_left (fun x y -> if x < y then x else y) (List.hd lst) lst in
+      let rest = List.filter (fun x -> x != min) lst in
+      min :: selection_sort rest
 ;;
 
-(* test_sort_correct vérifie que le tri d'une liste avec la fonction "List.sort" donne une liste triée.*)
-let test_sort_correct = test_intlist "List.sort (correct)" (fun l -> is_sorted (List.sort compare l)) ;;
+(* test_sort vérifie que le tri d'une liste avec la fonction "List.sort" donne une liste triée.*)
+let test_sort = test_intlist "List.sort (correct?)" (fun l -> List.sort compare l = selection_sort l) ;;
 
-(* test_sort_wrong vérifie que le tri d'une liste avec la fonction "List.sort" ne donne pas une liste triée, ce qui devrait échouer.*)
-let test_sort_wrong   = test_intlist "List.sort (faux)" (fun l -> not (is_sorted (List.sort compare l))) ;;
+
 
 (* Exécution des tests *)
-Test.check    100 test_sort_correct ;;
-Test.check    100 test_sort_wrong ;;
-Test.fails_at 100 test_sort_correct ;;
-Test.fails_at 100 test_sort_wrong ;;
-Test.execute  100 [test_sort_correct; test_sort_wrong] ;;
+Test.check    100 test_sort;;
+Test.fails_at 100 test_sort ;;
 
 
-(* Exemple complexe: Fonction de produit scalaire *)
+(* Exemple : Fonction de produit scalaire *)
 (* Nous avons défini une fonction dot_product pour calculer le produit scalaire de deux vecteurs représentés par des listes d'entiers. *)
 let dot_product v1 v2 =
   List.fold_left2 (fun acc x y -> acc + (x * y)) 0 v1 v2
@@ -162,11 +158,9 @@ let test_intlist = Test.make_test gen_intlist red_intlist ;;
 
 (* Construction des tests *)
 
-(* dot_product_test qui prend deux générateurs en arguments et exécute les tests de produit scalaire. 
-   Ensuite, nous avons défini les tests test_dot_product_correct et test_dot_product_wrong en utilisant cette fonction. *)
-   let dot_product_test gen1 gen2 =
-    let l1 = gen1 () in
-    let l2 = gen2 () in
+(* dot_product_testRight qui prend deux listes en argument et exécute les tests de produit scalaire correct (avec un +)
+   Ensuite, nous avons défini les tests test_dot_product_correct en utilisant cette fonction. *)
+   let dot_product_testRight l1 l2 =
     if List.length l1 <> List.length l2 then false
     else
       let result = dot_product l1 l2 in
@@ -175,14 +169,25 @@ let test_intlist = Test.make_test gen_intlist red_intlist ;;
       result = manual_result
   ;;  
 
-(* test_dot_product_correct vérifie que le produit scalaire calculé par la fonction dot_product 
-   est égal au résultat obtenu en utilisant la fonction List.fold_left2 pour calculer manuellement le produit scalaire.*)
+(* dot_product_testWrong qui prend deux listes en argument et exécute les tests de produit scalaire correct (avec un -)
+   Ensuite, nous avons défini les tests de test_dot_product_wrong en utilisant cette fonction. *)
+  let dot_product_testWrong l1 l2 =
+    if List.length l1 <> List.length l2 then false
+    else
+      let result = dot_product l1 l2 in
+      let combined_list = List.combine l1 l2 in
+      let manual_result = List.fold_left (fun acc (x, y) -> acc - (x * y)) 0 combined_list in
+      result = manual_result
+  ;;  
+
+(* test_dot_product_correct compare que le produit scalaire calculé par la fonction dot_product 
+   est égal au résultat obtenu en utilisant la fonction List.fold_left pour calculer manuellement le produit scalaire.*)
 let test_dot_product_correct = Test.make_test (Generator.combine gen_intlist gen_intlist) (Reduction.combine red_intlist red_intlist) "dot_product (correct)" (fun (l1, l2) ->
-    dot_product_test (fun () -> l1) (fun () -> l2)) ;;
+    dot_product_testRight l1 l2) ;;
 (* test_dot_product_wrong vérifie que le produit scalaire calculé par la fonction dot_product est égal au résultat obtenu en utilisant 
-   la fonction List.fold_left2 pour calculer une version incorrecte du produit scalaire (en soustrayant plutôt qu'en additionnant les produits), ce qui devrait échouer.*)
+   la fonction List.fold_left pour calculer une version incorrecte du produit scalaire (en soustrayant plutôt qu'en additionnant les produits), ce qui devrait échouer.*)
 let test_dot_product_wrong = Test.make_test (Generator.combine gen_intlist gen_intlist) (Reduction.combine red_intlist red_intlist) "dot_product (faux)" (fun (l1, l2) ->
-    not (dot_product_test (fun () -> l1) (fun () -> l2))) ;;
+ (dot_product_testWrong l1 l2)) ;;
 
 (* Exécution des tests *)
 Test.check    100 test_dot_product_correct ;;
