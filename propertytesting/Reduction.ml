@@ -83,18 +83,34 @@ module Reduction :
       *)
     val filter : ('a -> bool) -> 'a t -> 'a t
     
+    (* LES FONCTIONS AUXILLIARES *)
+
+    (** Convertit une chaîne de caractères en une liste de caractères
+      * @param str chaîne de caractères
+      * @return    liste de caractères correspondante
+      *)
     val carac_par_carac : string -> char list
- 
+
+      (** Concatène les caractères de la liste de listes 'redMot' à la position 'i'
+        * @param redMot liste de listes de caractères
+        * @param i      position dans chaque liste
+        * @return       chaîne de caractères concaténée
+        *)
     val ligneMot : char list list -> int -> string
- 
+  
+      (** Trouve la longueur maximale parmi les listes contenues dans 'tab'
+        * @param tab liste de listes
+        * @param i   index courant (initialiser à 0)
+        * @param acc accumulateur pour la longueur maximale (initialiser à 0)
+        * @return    longueur maximale parmi les listes contenues dans 'tab'
+        *)
     val maxlength : 'a list list -> int -> int -> int
     
   end =
   struct
     type 'a t = 'a -> 'a list
 
-    (* TODO : Implémenter tous les éléments de la signature manquants *)
-    
+    (* La stratégie vide : ne renvoie aucune proposition de réduction *)
     let empty x = 
       []
     ;;
@@ -157,7 +173,7 @@ module Reduction :
     ;;
     ;;
 
-
+    (* retourne la liste de caractères alphanumériques entre '0' et le 'carac' inclus *)
     let alphanum c = 
       let rec aux i acc = 
       if i > Char.code c then 
@@ -175,10 +191,15 @@ module Reduction :
 
     (*Pour tester : alphanum '9';;*)
     
-    
+    (* Stratégie de réduction pour les listes *)
+    (* retourne une liste de listes, où chaque élément est le résultat de 
+       l'application de la fonction de réduction 'réduction' sur chaque élément de la liste d'entrée *)
     let list red lst =
       List.map red lst
     ;;
+
+    (* Fonctions auxiliaires pour la stratégie de réduction des chaînes de caractères *)
+    (* Convertit une chaîne de caractères en une liste de caractères *)
     let carac_par_carac str =
       let rec aux i acc =
         if i >= String.length str then
@@ -189,6 +210,7 @@ module Reduction :
       in aux 0 []
     ;;
 
+    (* retourner une chaîne de caractères à partir de la liste de listes de caractères 'redMot' à l'index i *)
     let ligneMot redMot i =
       let rec aux j acc =
         if j < 0 then
@@ -200,6 +222,7 @@ module Reduction :
       in aux (List.length redMot - 1) ""
     ;;
 
+    (* retourner la longueur maximale des listes dans 'tab' *)
     let rec maxlength tab i acc =
       if i >= List.length tab then
         acc
@@ -209,6 +232,8 @@ module Reduction :
         maxlength tab (i + 1) acc
     
 
+    (* Stratégie de réduction pour les chaînes de caractères *)
+    (* Appliquer la fonction de réduction 'red' à chaque caractère de la chaîne de caractères 's' *)
     let string (red : char -> char list) s : string list =
       let reduction = list red (carac_par_carac s) in
       let maxL = maxlength reduction 0 0 in
@@ -221,26 +246,22 @@ module Reduction :
       in aux [] 0
     ;;
 
-let combine fst_red snd_red (x,y): ('a * 'b) list =
-  let first = fst_red x in
-  let second = snd_red y in
-  let rec aux acc i =
-    if i < List.length first || i < List.length second then
-      let a = List.nth first (i mod (List.length first)) in
-      let b = List.nth second (i mod (List.length second)) in
-      aux ((a,b)::acc) (i+1)
-    else List.rev acc
-  in aux [] 0;;
 
+    (* Combiner deux fonctions de réduction 'fst_red' et 'snd_red' pour créer une fonction de réduction sur les paires *)
+    let combine fst_red snd_red (x,y): ('a * 'b) list =
+      let first = fst_red x in
+      let second = snd_red y in
+      let rec aux acc i =
+        if i < List.length first || i < List.length second then
+          let a = List.nth first (i mod (List.length first)) in
+          let b = List.nth second (i mod (List.length second)) in
+          aux ((a,b)::acc) (i+1)
+        else List.rev acc
+      in aux [] 0;;
 
-
-
+    (* Appliquer un filtre à une stratégie de réduction *)
     let filter p red= 
       fun x -> List.filter p (red x)
      ;;
 
-    
-    
-    
-    
   end ;;
